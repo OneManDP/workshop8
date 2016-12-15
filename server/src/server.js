@@ -19,6 +19,18 @@ var bcrypt = require('bcryptjs');
 var LoginSchema = require('./schemas/login.json');
 var jwt = require('jsonwebtoken');
 var secretKey = "7d672134-7365-40d8-acd6-ca6a82728471";
+var https = require('https');
+// Import Node's file system API.
+var fs = require('fs');
+var path = require('path');
+// Read in the private key
+// __dirname is a magic variable that contains
+// the directory that contains server.js. path.join
+// joins two file paths together.
+var privateKey = fs.readFileSync(path.join(__dirname, 'key.pem'));
+// Read in the certificate, which contains the
+// public key and signature
+var certificate = fs.readFileSync(path.join(__dirname, 'key.crt'));
 
 /**
  * Strips a password from a user object.
@@ -825,7 +837,8 @@ app.post('/login', validate({ body: LoginSchema }),
   });
 
   // Starts the server on port 3000!
-  app.listen(3000, function () {
-    console.log('Example app listening on port 3000!');
-  });
+  https.createServer({key: privateKey, cert: certificate},
+                    app).listen(3000, function () {
+   console.log('Example app listening on port 3000!');
+ });
 });
